@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% from "_komponen.html" import kartu, lencana with context %}
+{% block judul %}Beranda{% endblock %}
+{% block isi %}
+<section class="hero">
+  <h1>Halo, {{ pengguna.nama.split()[0] }}.</h1>
+  <p>Kehilangan sesuatu di kampus atau menemukan barang orang lain? Laporkan di sini, sistem akan mencocokkannya secara otomatis dan staf membantu verifikasinya.</p>
+  <div class="baris">
+    {% if pengguna.boleh('lapor') %}
+      <a class="btn putih" href="{{ url_for('laporan.baru', tipe='Kehilangan') }}">Saya kehilangan barang</a>
+      <a class="btn kontur" href="{{ url_for('laporan.baru', tipe='Temuan') }}">Saya menemukan barang</a>
+    {% endif %}
+  </div>
+</section>
+
+<section class="grid g3" aria-label="Ringkasan">
+  {% if pengguna.boleh('status') %}
+  <div class="kartu stat"><b>{{ ringkas.aktif }}</b><span>Laporan Anda yang masih berjalan</span></div>
+  <div class="kartu stat"><b>{{ ringkas.cocok }}</b><span>Laporan dengan kandidat cocok</span></div>
+  <div class="kartu stat"><b>{{ ringkas.selesai }}</b><span>Laporan selesai (barang diambil)</span></div>
+  {% endif %}
+  {% if menunggu is not none %}
+  <a class="kartu stat" href="{{ url_for('verifikasi.daftar') }}"><b>{{ menunggu }}</b><span>Kandidat menunggu verifikasi Anda</span></a>
+  {% endif %}
+</section>
+
+{% if milik %}
+<section>
+  <div class="baris antar"><h2>Laporan terbaru Anda</h2><a href="{{ url_for('laporan.status_saya') }}">Lihat semua</a></div>
+  <div class="grid g4">{% for l in milik %}{{ kartu(l) }}{% endfor %}</div>
+</section>
+{% endif %}
+
+<section>
+  <div class="baris antar"><h2>Barang terbaru di LOF-FILKOM</h2><a href="{{ url_for('pencarian.cari') }}">Cari barang</a></div>
+  {% if terbaru %}<div class="grid g3">{% for l in terbaru %}{{ kartu(l) }}{% endfor %}</div>
+  {% else %}<div class="kartu kosong"><b>Belum ada laporan</b>Jadilah yang pertama membuat laporan.</div>{% endif %}
+</section>
+{% endblock %}

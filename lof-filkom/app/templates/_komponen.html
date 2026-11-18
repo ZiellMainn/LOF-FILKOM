@@ -1,0 +1,26 @@
+{% macro lencana(status) %}<span class="lencana {{ status|kelas_status }}">{{ status }}</span>{% endmacro %}
+
+{% macro galat(errors, nama) %}{% if errors.get(nama) %}<div class="galat" id="err-{{ nama }}" role="alert">{{ errors[nama] }}</div>{% endif %}{% endmacro %}
+
+{% macro langkah(tahap) %}
+<ol class="langkah" aria-label="Tahap status laporan">
+  {% for t in TAHAP %}<li class="{% if loop.index0 < tahap %}lalu{% elif loop.index0 == tahap %}kini{% endif %}" {% if loop.index0 == tahap %}aria-current="step"{% endif %}>{{ t }}</li>{% endfor %}
+</ol>
+{% endmacro %}
+
+{# Kartu barang. Ciri spesifik barang temuan disembunyikan dari pengguna selain pemilik/staf/pimpinan. #}
+{% macro kartu(l) %}
+{% set penuh = l.tipe_laporan == 'Kehilangan' or l.id_user == pengguna.id_user or pengguna.boleh('lihat_detail') %}
+<a class="kartu barang" href="{{ url_for('laporan.detail', id_laporan=l.id_laporan) }}">
+  <div class="foto{% if not (l.foto and penuh) %} kosong{% endif %}">
+    {% if l.foto and penuh %}<img src="{{ url_for('laporan.foto', nama=l.foto) }}" alt="Foto {{ l.nama_barang }}" loading="lazy">
+    {% else %}<span>{% if l.foto %}Foto disembunyikan{% else %}Tanpa foto{% endif %}</span>{% endif %}
+  </div>
+  <div class="badan">
+    <div class="baris antar"><span class="tipe {{ l.tipe_laporan }}">{{ l.tipe_laporan }}</span>{{ lencana(l.status) }}</div>
+    <h3>{{ l.nama_barang }}</h3>
+    <div class="meta">{{ l.nama_kategori }} &middot; {% if penuh %}{{ l.nama_lokasi }}{% else %}{{ l.jenis_lokasi or 'Kampus' }}{% endif %}</div>
+    <div class="meta">{{ l.waktu_kejadian|tanggal(penuh) }}</div>
+  </div>
+</a>
+{% endmacro %}

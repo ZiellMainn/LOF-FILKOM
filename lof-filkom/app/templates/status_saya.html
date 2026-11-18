@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_komponen.html" import lencana, langkah %}
+{% block judul %}Status Laporan{% endblock %}
+{% block isi %}
+<div class="judul-halaman"><h1>Status laporan saya</h1><p>Pantau perkembangan setiap laporan dari Dilaporkan sampai Diambil.</p></div>
+{% if daftar %}
+  <div class="grid">
+  {% for l in daftar %}
+    <a class="kartu barang" href="{{ url_for('laporan.detail', id_laporan=l.id_laporan) }}">
+      <div class="badan">
+        <div class="baris antar"><span class="tipe {{ l.tipe_laporan }}">{{ l.tipe_laporan }} &middot; #{{ l.id_laporan }}</span>{{ lencana(l.status) }}</div>
+        <h3>{{ l.nama_barang }}</h3>
+        <div class="meta">{{ l.nama_kategori }} &middot; {{ l.nama_lokasi }} &middot; dikirim {{ l.created_at|relatif }}</div>
+        {{ langkah(l.tahap) }}
+      </div>
+    </a>
+  {% endfor %}
+  </div>
+{% else %}
+  <div class="kartu kosong"><b>Belum ada laporan</b>Laporan yang Anda buat akan muncul di sini.<br><br><a class="btn" href="{{ url_for('laporan.baru') }}">Buat laporan</a></div>
+{% endif %}
+{% endblock %}
