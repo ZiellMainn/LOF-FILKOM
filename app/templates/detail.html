@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "_komponen.html" import lencana, langkah %}
+{% block judul %}{{ laporan.nama_barang }}{% endblock %}
+{% block isi %}
+<p><a href="{{ url_for('pencarian.cari') if pengguna.boleh('cari') else url_for('beranda.index') }}">&larr; Kembali</a></p>
+<div class="dua-kolom">
+  <section class="kartu lega">
+    <div class="baris antar"><span class="tipe {{ laporan.tipe_laporan }}">{{ laporan.tipe_laporan }} &middot; #{{ laporan.id_laporan }}</span>{{ lencana(laporan.status) }}</div>
+    <h1>{{ laporan.nama_barang }}</h1>
+    <div data-status-url="{{ url_for('laporan.status_json', id_laporan=laporan.id_laporan) }}" data-status="{{ laporan.status }}" data-riwayat="{{ riwayat|length }}">
+      {{ langkah(laporan.tahap) }}
+    </div>
+    {% if laporan.foto and penuh %}<img src="{{ url_for('laporan.foto', nama=laporan.foto) }}" alt="Foto {{ laporan.nama_barang }}" class="berkas-pratinjau tampil">{% endif %}
+    <dl class="rinci">
+      <dt>Kategori</dt><dd>{{ laporan.nama_kategori }}</dd>
+      <dt>Lokasi</dt><dd>{% if penuh %}{{ laporan.nama_lokasi }}{% else %}{{ laporan.jenis_lokasi or 'Kampus' }} (lokasi tepat disembunyikan){% endif %}</dd>
+      <dt>Waktu</dt><dd>{{ laporan.waktu_kejadian|tanggal(penuh) }}</dd>
+      <dt>Pelapor</dt><dd>{% if penuh %}{{ laporan.nama_pelapor }}{% else %}Disembunyikan{% endif %}</dd>
+      <dt>Ciri-ciri</dt>
+      <dd>{% if penuh %}{{ laporan.deskripsi or '-' }}{% else %}<div class="tersembunyi">Ciri spesifik barang temuan disembunyikan. Jika ini barang Anda, buat laporan kehilangan dengan ciri-ciri yang rinci agar staf dapat memverifikasi.</div>{% endif %}</dd>
+    </dl>
+    {% if not penuh and pengguna.boleh('lapor') %}
+      <p><a class="btn" href="{{ url_for('laporan.baru', tipe='Kehilangan') }}">Ini barang saya, buat laporan kehilangan</a></p>
+    {% endif %}
+  </section>
+
+  <aside class="sisi-sticky">
+    <div class="kartu">
+      <h3>Riwayat status</h3>
+      <ul class="linimasa">
+        {% for r in riwayat %}<li><b>{{ r.status }}</b><div class="muted kecil">{{ r.waktu_perubahan|tanggal }}{% if penuh %} &middot; {{ r.nama_user }}{% endif %}</div></li>{% endfor %}
+      </ul>
+    </div>
+    {% if kandidat %}
+    <div class="kartu">
+      <h3>Kandidat kecocokan</h3>
+      {% for p in kandidat %}
+        <div class="baris antar"><span>{{ p.nama_kehilangan if laporan.tipe_laporan == 'Temuan' else p.nama_temuan }}</span><b>{{ '%.0f'|format(p.skor_kecocokan) }}%</b></div>
+        <div class="baris antar kecil muted"><span>{{ lencana(p.status_pencocokan) }}</span>
+          {% if pengguna.boleh('verifikasi') %}<a href="{{ url_for('verifikasi.periksa', id_pencocokan=p.id_pencocokan) }}">Periksa</a>{% endif %}</div>
+        {% if not loop.last %}<hr>{% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

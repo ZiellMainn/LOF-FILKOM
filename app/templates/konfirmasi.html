@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from "_komponen.html" import lencana %}
+{% block judul %}Laporan Terkirim{% endblock %}
+{% block isi %}
+<div class="kartu lega tengah">
+  <h1>Laporan terkirim</h1>
+  <p class="muted">Nomor laporan <b>#{{ laporan.id_laporan }}</b> &middot; {{ laporan.nama_barang }} &middot; {{ lencana(laporan.status) }}</p>
+  {% if kandidat %}
+    <div class="flash ok">Ditemukan {{ kandidat }} kandidat yang mungkin cocok. Staf akan memverifikasi bukti kepemilikan.</div>
+  {% else %}
+    <div class="flash info">Belum ada laporan yang cocok. Laporan Anda tetap tersimpan dan akan dicocokkan saat ada laporan baru.</div>
+  {% endif %}
+  <div class="baris pusat">
+    <a class="btn" href="{{ url_for('laporan.detail', id_laporan=laporan.id_laporan) }}">Lihat status laporan</a>
+    <a class="btn garis" href="{{ url_for('laporan.baru') }}">Buat laporan lain</a>
+  </div>
+</div>
+{% endblock %}

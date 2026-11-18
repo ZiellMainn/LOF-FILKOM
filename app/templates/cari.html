@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_komponen.html" import kartu with context %}
+{% block judul %}Cari Barang{% endblock %}
+{% block isi %}
+<div class="judul-halaman"><h1>Cari barang</h1><p>Telusuri laporan kehilangan dan temuan. Ciri spesifik barang temuan disembunyikan demi keamanan klaim.</p></div>
+<form class="kartu" method="get" role="search" aria-label="Cari dan saring barang">
+  <div class="grid g4">
+    <div class="field"><label for="q">Kata kunci</label><input id="q" name="q" type="search" value="{{ f.q or '' }}" placeholder="dompet, kunci, earphone"></div>
+    <div class="field"><label for="kategori">Kategori</label>
+      <select id="kategori" name="kategori"><option value="">Semua</option>
+        {% for k in kategori %}<option value="{{ k.id_kategori }}" {% if f.id_kategori == k.id_kategori %}selected{% endif %}>{{ k.nama_kategori }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="lokasi">Lokasi</label>
+      <select id="lokasi" name="lokasi"><option value="">Semua</option>
+        {% for l in lokasi %}<option value="{{ l.id_lokasi }}" {% if f.id_lokasi == l.id_lokasi %}selected{% endif %}>{{ l.nama_lokasi }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="tipe">Jenis</label>
+      <select id="tipe" name="tipe"><option value="">Semua</option>
+        <option value="Kehilangan" {% if f.tipe == 'Kehilangan' %}selected{% endif %}>Kehilangan</option>
+        <option value="Temuan" {% if f.tipe == 'Temuan' %}selected{% endif %}>Temuan</option></select></div>
+  </div>
+  <div class="baris">
+    <div class="field"><label for="status">Status</label>
+      <select id="status" name="status"><option value="">Yang masih aktif</option>
+        {% for s in status_list %}<option {% if f.status == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></div>
+    <button class="btn biru" type="submit">Cari</button>
+    {% if ada_filter %}<a class="btn garis" href="{{ url_for('pencarian.cari') }}">Atur ulang</a>{% endif %}
+  </div>
+</form>
+
+<section aria-live="polite">
+  <p class="muted">{{ hasil|length }} laporan ditemukan.</p>
+  {% if hasil %}<div class="grid g3">{% for l in hasil %}{{ kartu(l) }}{% endfor %}</div>
+  {% else %}
+    <div class="kartu kosong"><b>Tidak ada hasil</b>Coba ubah kata kunci atau filter, atau
+      {% if pengguna.boleh('lapor') %}<a href="{{ url_for('laporan.baru') }}">buat laporan baru</a>{% else %}periksa lagi nanti{% endif %}.</div>
+  {% endif %}
+</section>
+{% endblock %}

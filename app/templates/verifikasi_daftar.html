@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "_komponen.html" import lencana %}
+{% block judul %}Verifikasi{% endblock %}
+{% block isi %}
+<div class="judul-halaman"><h1>Verifikasi kepemilikan</h1><p>Periksa kandidat yang dicocokkan sistem, nilai bukti kepemilikan, lalu setujui atau tolak.</p></div>
+<div class="baris">
+  <a class="btn {{ 'biru' if tampil == 'menunggu' else 'garis' }} kecil" href="?tampil=menunggu">Menunggu</a>
+  <a class="btn {{ 'biru' if tampil == 'disetujui' else 'garis' }} kecil" href="?tampil=disetujui">Disetujui</a>
+  <a class="btn {{ 'biru' if tampil == 'ditolak' else 'garis' }} kecil" href="?tampil=ditolak">Ditolak</a>
+</div>
+<section>
+{% if kandidat %}
+<div class="tabel-bungkus"><table>
+  <thead><tr><th>Kehilangan</th><th>Temuan</th><th>Skor</th><th>Status</th><th><span class="lompat">Aksi</span></th></tr></thead>
+  <tbody>
+  {% for p in kandidat %}
+    <tr>
+      <td><b>{{ p.nama_kehilangan }}</b><div class="muted kecil">{{ p.nama_pemilik }} &middot; {{ p.lokasi_kehilangan }}</div></td>
+      <td><b>{{ p.nama_temuan }}</b><div class="muted kecil">{{ p.nama_penemu }} &middot; {{ p.lokasi_temuan }}</div></td>
+      <td><b>{{ '%.0f'|format(p.skor_kecocokan) }}%</b></td>
+      <td>{{ lencana(p.status_pencocokan) }}</td>
+      <td><a class="btn kecil" href="{{ url_for('verifikasi.periksa', id_pencocokan=p.id_pencocokan) }}">{{ 'Periksa' if p.menunggu else 'Lihat' }}</a></td>
+    </tr>
+  {% endfor %}
+  </tbody></table></div>
+{% else %}<div class="kartu kosong"><b>Tidak ada kandidat</b>Belum ada data pada tampilan ini.</div>{% endif %}
+</section>
+{% endblock %}

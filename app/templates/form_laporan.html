@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% from "_komponen.html" import galat %}
+{% block judul %}Buat Laporan{% endblock %}
+{% block isi %}
+<div class="judul-halaman"><h1>Buat laporan</h1><p>Isi sejelas mungkin. Informasi yang lengkap membantu sistem menemukan kecocokan.</p></div>
+<div class="dua-kolom">
+<form class="kartu lega" method="post" enctype="multipart/form-data" novalidate data-proses="Mengirim laporan...">
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  {% if errors %}<div class="flash error" role="alert">Laporan belum lengkap. Periksa kolom yang ditandai.</div>{% endif %}
+
+  <fieldset class="field {% if errors.tipe_laporan %}salah{% endif %}">
+    <legend class="label">Jenis laporan</legend>
+    <div class="pilih-tipe">
+      <div><input type="radio" id="t-hilang" name="tipe_laporan" value="Kehilangan" {% if isi.tipe_laporan != 'Temuan' %}checked{% endif %}>
+        <label for="t-hilang"><b>Saya kehilangan</b><span>Barang saya hilang</span></label></div>
+      <div><input type="radio" id="t-temu" name="tipe_laporan" value="Temuan" {% if isi.tipe_laporan == 'Temuan' %}checked{% endif %}>
+        <label for="t-temu"><b>Saya menemukan</b><span>Barang milik orang lain</span></label></div>
+    </div>
+    {{ galat(errors, 'tipe_laporan') }}
+  </fieldset>
+
+  <div class="field {% if errors.nama_barang %}salah{% endif %}">
+    <label for="nama_barang">Nama barang <span class="muted">(wajib)</span></label>
+    <input id="nama_barang" name="nama_barang" type="text" maxlength="100" value="{{ isi.nama_barang }}" placeholder="Contoh: Dompet kulit cokelat" aria-describedby="err-nama_barang">
+    {{ galat(errors, 'nama_barang') }}
+  </div>
+
+  <div class="grid g2">
+    <div class="field {% if errors.id_kategori %}salah{% endif %}">
+      <label for="id_kategori">Kategori <span class="muted">(wajib)</span></label>
+      <select id="id_kategori" name="id_kategori" aria-describedby="err-id_kategori">
+        <option value="">Pilih kategori</option>
+        {% for k in kategori %}<option value="{{ k.id_kategori }}" {% if isi.id_kategori|string == k.id_kategori|string %}selected{% endif %}>{{ k.nama_kategori }}</option>{% endfor %}
+      </select>{{ galat(errors, 'id_kategori') }}
+    </div>
+    <div class="field {% if errors.id_lokasi %}salah{% endif %}">
+      <label for="id_lokasi">Lokasi <span class="muted">(wajib)</span></label>
+      <select id="id_lokasi" name="id_lokasi" aria-describedby="err-id_lokasi">
+        <option value="">Pilih lokasi</option>
+        {% for l in lokasi %}<option value="{{ l.id_lokasi }}" {% if isi.id_lokasi|string == l.id_lokasi|string %}selected{% endif %}>{{ l.nama_lokasi }}</option>{% endfor %}
+      </select>{{ galat(errors, 'id_lokasi') }}
+    </div>
+  </div>
+
+  <div class="field {% if errors.waktu_kejadian %}salah{% endif %}">
+    <label for="waktu_kejadian">Waktu kejadian <span class="muted">(wajib)</span></label>
+    <input id="waktu_kejadian" name="waktu_kejadian" type="datetime-local" value="{{ isi.waktu_kejadian }}" aria-describedby="err-waktu_kejadian">
+    <div class="petunjuk">Perkiraan waktu barang hilang atau ditemukan.</div>{{ galat(errors, 'waktu_kejadian') }}
+  </div>
+
+  <div class="field {% if errors.deskripsi %}salah{% endif %}">
+    <label for="deskripsi">Ciri-ciri barang <span class="muted">(wajib)</span></label>
+    <textarea id="deskripsi" name="deskripsi" maxlength="1000" aria-describedby="err-deskripsi">{{ isi.deskripsi }}</textarea>
+    <div class="petunjuk">Warna, merek, isi, goresan, atau tanda khusus. Untuk barang temuan, ciri ini hanya terlihat oleh staf agar klaim bisa diverifikasi.</div>{{ galat(errors, 'deskripsi') }}
+  </div>
+
+  <div class="field {% if errors.foto %}salah{% endif %}">
+    <label for="foto">Foto <span class="muted">(opsional, JPG/PNG/WEBP, maks 3 MB)</span></label>
+    <input id="foto" name="foto" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="err-foto">
+    <img id="pratinjau" class="berkas-pratinjau" alt="Pratinjau foto yang dipilih">{{ galat(errors, 'foto') }}
+  </div>
+
+  <button class="btn" type="submit" data-proses="Mengirim laporan...">Kirim laporan</button>
+</form>
+
+<aside class="kartu sisi-sticky">
+  <h3>Apa yang terjadi setelah kirim?</h3>
+  <ol class="muted">
+    <li>Laporan tersimpan dengan status <b>Dilaporkan</b>.</li>
+    <li>Sistem membandingkan dengan laporan lawan (kategori, lokasi, waktu, kata kunci).</li>
+    <li>Jika cocok, status menjadi <b>Dicocokkan</b> dan staf memverifikasi bukti kepemilikan.</li>
+    <li>Setelah disetujui, barang diserahkan dan status menjadi <b>Diambil</b>.</li>
+  </ol>
+</aside>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "_komponen.html" import lencana %}
+{% block judul %}Riwayat Status{% endblock %}
+{% block isi %}
+<div class="judul-halaman baris antar"><div><h1>Riwayat perubahan status</h1><p>Jejak semua perubahan status laporan beserta siapa yang mengubahnya.</p></div>
+  <a class="btn garis" href="{{ url_for('rekap.riwayat_csv', **{k: v for k, v in f.items() if v}) }}">Unduh CSV</a></div>
+<form class="kartu" method="get">
+  <div class="grid g4">
+    <div class="field"><label for="status">Status</label><select id="status" name="status"><option value="">Semua</option>
+      {% for s in status_list %}<option {% if f.status == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="tipe">Jenis</label><select id="tipe" name="tipe"><option value="">Semua</option>
+      <option {% if f.tipe == 'Kehilangan' %}selected{% endif %}>Kehilangan</option><option {% if f.tipe == 'Temuan' %}selected{% endif %}>Temuan</option></select></div>
+    <div class="field"><label for="dari">Dari tanggal</label><input id="dari" name="dari" type="date" value="{{ f.dari or '' }}"></div>
+    <div class="field"><label for="sampai">Sampai tanggal</label><input id="sampai" name="sampai" type="date" value="{{ f.sampai or '' }}"></div>
+  </div>
+  <button class="btn biru" type="submit">Terapkan</button>
+</form>
+<section>
+{% if data %}
+<div class="tabel-bungkus"><table>
+  <thead><tr><th>Waktu</th><th>Laporan</th><th>Jenis</th><th>Status</th><th>Diubah oleh</th></tr></thead>
+  <tbody>{% for r in data %}<tr>
+    <td>{{ r.waktu_perubahan|tanggal }}</td>
+    <td><a href="{{ url_for('laporan.detail', id_laporan=r.id_laporan) }}">#{{ r.id_laporan }}</a> {{ r.nama_barang }}</td>
+    <td>{{ r.tipe_laporan }}</td><td>{{ lencana(r.status) }}</td><td>{{ r.nama_user }}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="kartu kosong"><b>Tidak ada catatan</b>Ubah filter untuk melihat data lain.</div>{% endif %}
+</section>
+{% endblock %}
